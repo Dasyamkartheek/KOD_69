@@ -1,0 +1,8 @@
+{% extends 'core/base.html' %}{% block title %}CodeArena | Learn Python{% endblock %}
+{% block content %}
+<section class="hero p-4 p-md-5 rounded-4 mb-4"><div class="row align-items-center"><div class="col-lg-8"><span class="eyebrow">PYTHON PRACTICE PLATFORM</span><h1 class="display-5 fw-bold mt-3">Learn. Practice. <span class="accent">Level up.</span></h1><p class="lead mt-3">Practice Python concepts, participate in quizzes, submit coding solutions, and track your progress in one place.</p><div class="d-flex flex-wrap gap-2 mt-4"><a class="btn btn-primary btn-lg" href="{% url 'register' %}">Create student account</a><a class="btn btn-outline-light btn-lg" href="{% url 'login' %}">Sign in</a></div></div><div class="col-lg-4 d-none d-lg-block"><div class="code-card"><div class="dots">● ● ●</div><pre><code>def greet(name):
+    return f"Hello, {name}!"
+
+print(greet("Python"))</code></pre><span class="code-output">Hello, Python!</span></div></div></div></section>
+<div class="row g-3"><div class="col-md-4"><div class="feature-card"><div class="feature-icon">?</div><h3>Quizzes</h3><p>Take topic-based MCQ quizzes and see your score immediately.</p></div></div><div class="col-md-4"><div class="feature-card"><div class="feature-icon">&lt;/&gt;</div><h3>Code practice</h3><p>Read programming challenges and submit your Python solutions.</p></div></div><div class="col-md-4"><div class="feature-card"><div class="feature-icon">↗</div><h3>Progress</h3><p>Review your attempts and keep track of your practice history.</p></div></div></div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% block title %}Program Results{% endblock %}
+{% block content %}
+<a href="{% url 'admin_programs' %}" class="text-decoration-none">&larr; Programs</a>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 my-3">
+  <div><span class="eyebrow">RESULTS DESK</span><h1 class="h2 fw-bold mt-2 mb-1">{{ program.title }}</h1><p class="text-secondary mb-0">{{ participants|length }} registered student{{ participants|length|pluralize }}</p></div>
+  {% if not program.published %}<span class="badge text-bg-warning">Program is a draft</span>{% endif %}
+</div>
+<div class="program-results-list">
+  {% for participant in participants %}
+    <section class="program-result-row">
+      <div class="program-student"><strong>{{ participant.registration.student.get_full_name|default:participant.registration.student.username }}</strong><span>{{ participant.registration.student.email|default:'No email' }} · Registered {{ participant.registration.registered_at|date:'d M Y' }}</span></div>
+      <form method="post" action="{% url 'admin_update_program_result' participant.registration.id %}" class="program-result-form">
+        {% csrf_token %}
+        {% for field in participant.form %}
+          {% if field.field.widget.input_type == 'checkbox' %}
+            <div class="form-check result-publish-check">{{ field }}<label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label></div>
+          {% else %}
+            <div><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>
+          {% endif %}
+          {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        {% endfor %}
+        <button class="btn btn-sm btn-primary" type="submit">Save result</button>
+      </form>
+    </section>
+  {% empty %}
+    <div class="empty-state"><p class="mb-0">No students have registered for this program yet.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

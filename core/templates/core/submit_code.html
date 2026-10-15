@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% block title %}{{ challenge.title }} | CodeArena IDE{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+{% endblock %}
+{% block content %}
+<a href="{% url 'challenge_list' %}" class="text-decoration-none">&larr; All challenges</a>
+<div class="ide-layout mt-3">
+  <aside class="ide-brief">
+    <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+      <span class="badge text-bg-light border">{{ challenge.topic }}</span>
+      <span class="badge {% if challenge.difficulty == 'Easy' %}text-bg-success{% elif challenge.difficulty == 'Medium' %}text-bg-warning{% else %}text-bg-danger{% endif %}">{{ challenge.difficulty }}</span>
+    </div>
+    <h1 class="h3 fw-bold">{{ challenge.title }}</h1>
+    <div class="ide-description">{{ challenge.description|linebreaks }}</div>
+    {% if challenge.sample_input %}<h2 class="h6 fw-bold mt-4">Sample input</h2><pre class="sample-block">{{ challenge.sample_input }}</pre>{% endif %}
+    {% if challenge.sample_output %}<h2 class="h6 fw-bold">Sample output</h2><pre class="sample-block">{{ challenge.sample_output }}</pre>{% endif %}
+    <p class="small text-secondary mb-4">{{ challenge.marks }} marks</p>
+    <h2 class="h6 fw-bold">Test cases</h2>
+    {% for test_case in test_cases %}
+      <details class="ide-test-case">
+        <summary>{{ test_case.name }}</summary>
+        <div class="small text-secondary mt-2">Input</div><pre class="sample-block">{{ test_case.input_data|default:'(no input)' }}</pre>
+        <div class="small text-secondary">Expected output</div><pre class="sample-block">{{ test_case.expected_output }}</pre>
+      </details>
+    {% empty %}
+      <p class="small text-secondary">This challenge has no test cases yet.</p>
+    {% endfor %}
+  </aside>
+
+  <section class="ide-workspace" data-ide data-worker-url="{% static 'core/python-runner.js' %}">
+    <div class="ide-toolbar">
+      <div><span class="ide-language-dot"></span><strong>Python 3</strong><span class="small text-secondary ms-2">Browser IDE</span></div>
+      <span class="small text-secondary" data-runtime-status role="status">Runtime loads when you run tests.</span>
+    </div>
+    <form method="post" data-submission-form>
+      {% csrf_token %}
+      <label class="visually-hidden" for="source_code">Python source code</label>
+      <textarea class="form-control code-editor" id="source_code" name="source_code" spellcheck="false" required>{{ request.POST.source_code|default:'# Write your Python solution here' }}</textarea>
+      <div class="ide-actions">
+        <button class="btn btn-primary" type="button" data-run-tests {% if not test_cases %}disabled{% endif %}>Run test cases</button>
+        <button class="btn btn-outline-secondary" type="button" data-reset-editor>Reset editor</button>
+        <button class="btn btn-success ms-md-auto" type="submit">Submit for review</button>
+      </div>
+    </form>
+    <div class="ide-results" aria-live="polite">
+      <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h6 fw-bold mb-0">Test results</h2><span class="small text-secondary" data-result-summary>Not run</span></div>
+      <div data-test-results><p class="small text-secondary mb-0">Run your code against the challenge tests before submitting.</p></div>
+    </div>
+    <p class="ide-disclaimer">Code runs in your browser's isolated Python runtime. Test results are for practice and are not used as an official grade.</p>
+  </section>
+</div>
+{{ test_cases|json_script:'challenge-test-cases-data' }}
+
+<section class="content-card mt-4">
+  <h2 class="h6 fw-bold">Recent submissions</h2>
+  {% for item in previous %}<div class="list-row"><span>{{ item.submitted_at|date:'d M Y, H:i' }}</span><span class="badge text-bg-light border">{{ item.status }}</span></div>{% empty %}<p class="text-secondary mb-0">No submissions yet.</p>{% endfor %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="{% static 'core/challenge-ide.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'core/base.html' %}
+{% block title %}Programs & Opportunities{% endblock %}
+{% block content %}
+<header class="programs-heading">
+  <div>
+    <span class="eyebrow">OPPORTUNITIES</span>
+    <h1 class="h2 fw-bold mt-2 mb-1">Programs & competitions</h1>
+    <p class="text-secondary mb-0">Find an event, register before the deadline, and track your result here.</p>
+  </div>
+  <span class="program-count">{{ program_cards|length }} published {% if program_cards|length == 1 %}program{% else %}programs{% endif %}</span>
+</header>
+
+<form method="get" class="program-filters" role="search">
+  <label class="visually-hidden" for="program-search">Search programs</label>
+  <input class="form-control" id="program-search" name="q" value="{{ search_query }}" placeholder="Search programs or organizers">
+  <label class="visually-hidden" for="program-type">Program type</label>
+  <select class="form-select" id="program-type" name="type">
+    <option value="">All program types</option>
+    {% for value, label in program_types %}<option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button class="btn btn-dark" type="submit">Search</button>
+</form>
+
+<div class="program-grid">
+  {% for item in program_cards %}
+    <article class="program-card">
+      <div class="program-card-top">
+        <span class="program-type">{{ item.program.get_program_type_display }}</span>
+        <span class="program-mode">{{ item.program.get_delivery_mode_display }}</span>
+      </div>
+      <p class="program-org">{{ item.program.organization }}</p>
+      <h2 class="h4 fw-bold">{{ item.program.title }}</h2>
+      <p class="program-description">{{ item.program.description|linebreaksbr }}</p>
+      {% if item.program.eligibility %}<p class="program-eligibility"><strong>Eligibility</strong><br>{{ item.program.eligibility|linebreaksbr }}</p>{% endif %}
+      <dl class="program-dates">
+        <div><dt>Registration closes</dt><dd>{{ item.program.registration_deadline|date:'d M Y' }}</dd></div>
+        <div><dt>Program dates</dt><dd>{{ item.program.start_date|date:'d M' }} – {{ item.program.end_date|date:'d M Y' }}</dd></div>
+        {% if item.program.location %}<div><dt>Location</dt><dd>{{ item.program.location }}</dd></div>{% endif %}
+      </dl>
+      {% if item.registration %}
+        <div class="program-enrolled">
+          <strong>You're registered</strong>
+          {% if item.registration.result_published %}
+            <div class="program-result-status">{{ item.registration.get_result_status_display }}{% if item.registration.score != None %}<span>Score: {{ item.registration.score }}</span>{% endif %}</div>
+            {% if item.registration.feedback %}<p class="mb-0 mt-2">{{ item.registration.feedback }}</p>{% endif %}
+          {% else %}
+            <p class="mb-0 mt-1">Your result will appear here when it is released.</p>
+          {% endif %}
+        </div>
+      {% elif item.program.registration_deadline >= today %}
+        <form method="post" action="{% url 'program_register' item.program.id %}">
+          {% csrf_token %}
+          <button class="btn btn-primary w-100" type="submit">Register for program</button>
+        </form>
+      {% else %}
+        <button class="btn btn-outline-secondary w-100" type="button" disabled>Registration closed</button>
+      {% endif %}
+    </article>
+  {% empty %}
+    <div class="empty-state program-empty"><h2 class="h5 fw-bold">No programs found</h2><p class="mb-0">Try another search, or check back when new opportunities are published.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

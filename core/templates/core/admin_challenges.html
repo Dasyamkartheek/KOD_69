@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+{% block title %}Manage Challenges{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div><span class="eyebrow">ADMIN WORKSPACE</span><h1 class="h2 fw-bold mt-2 mb-1">Programming challenges</h1><p class="text-secondary mb-0">Edit challenge details, test cases, and what students can see.</p></div>
+  <a class="btn btn-primary" href="{% url 'admin_create_challenge' %}">Add challenge</a>
+</div>
+<div class="table-responsive program-admin-table">
+  <table class="table align-middle mb-0">
+    <thead><tr><th>Challenge</th><th>Level</th><th>Test cases</th><th>Visibility</th><th></th></tr></thead>
+    <tbody>
+      {% for challenge in challenges %}
+        <tr>
+          <td><strong>{{ challenge.title }}</strong><div class="small text-secondary">{{ challenge.topic }}</div></td>
+          <td>{{ challenge.difficulty }}</td>
+          <td>{{ challenge.test_case_count }}</td>
+          <td>{% if challenge.published %}<span class="badge text-bg-success">Published</span>{% else %}<span class="badge text-bg-light border">Draft</span>{% endif %}</td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'admin_edit_challenge' challenge.id %}">Edit</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="text-center text-secondary py-5">No challenges yet. Add one and include its test cases.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
